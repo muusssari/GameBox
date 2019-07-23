@@ -1,0 +1,19 @@
+{
+  "name": "labyrintgame",
+  "version": "1.0.0",
+  "description": "multiplayerGame",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "JustCoalaGamez",
+  "license": "ISC"
+}
