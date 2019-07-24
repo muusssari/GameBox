@@ -4,13 +4,14 @@ const express = require('express');
 const app = express();
 const serv = require('http').Server(app);
 const io = require('socket.io')(serv, {});
+const path = require('path');
 
 
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/client/index.html');
 });
 app.use('/client', express.static(__dirname + '/client'));
-
+app.use(express.static(path.join(__dirname, 'client')));
 serv.listen(2000);
 console.log("Server Started");
 
