@@ -15,7 +15,6 @@ serv.listen(2000);
 console.log("Server Started");
 
 const grid = Maze.setupMaze();
-
 let SOCKET_LIST = [];
 let PLAYER_LIST = [];
 
@@ -23,7 +22,7 @@ io.sockets.on('connection', function(socket) {
     socket.id = SOCKET_LIST.length;
     SOCKET_LIST[socket.id] = socket;
     
-    let player = Player.Create(socket.id);
+    let player = Player.Create(socket.id, grid[0]);
     PLAYER_LIST[socket.id] = player;
 
     socket.on('disconnect', function() {
@@ -32,14 +31,22 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('keyPress', function(data) {
-        if(data.inputId=== 'left')
+        if(data.inputId=== 'left' && !player.currentCell.walls[3]) {
             player.pressingLeft = data.state;
-        else if(data.inputId=== 'right')
+            player.currentCell = grid[Maze.index(player.currentCell.i-1,player.currentCell.j)];
+        }
+        else if(data.inputId=== 'right' && !player.currentCell.walls[1]){
             player.pressingRight = data.state;
-        else if(data.inputId=== 'up')
+            player.currentCell = grid[Maze.index(player.currentCell.i+1,player.currentCell.j)];
+        }
+        else if(data.inputId=== 'up' && !player.currentCell.walls[0]){
             player.pressingUp = data.state;
-        else if(data.inputId=== 'down')
+            player.currentCell = grid[Maze.index(player.currentCell.i,player.currentCell.j-1)];
+        }
+        else if(data.inputId=== 'down' && !player.currentCell.walls[2]){
             player.pressingDown = data.state;
+            player.currentCell = grid[Maze.index(player.currentCell.i,player.currentCell.j+1)];
+        }
     });
     socket.emit('maze', grid);
     socket.emit('id', socket.id)
@@ -61,4 +68,3 @@ setInterval(function () {
         socket.emit('newPositions', pack);
     }
 },1000/30);
-

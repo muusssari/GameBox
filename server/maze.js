@@ -74,7 +74,6 @@ const Cell = function(i,j, w) {
     this.visited = false;
     this.goal = false;
     this.start = false;
-    
 
     this.checkNeighbors = function(grid) {
         let neighbors = [];
@@ -104,39 +103,7 @@ const Cell = function(i,j, w) {
             return undefined;
         }
     }
-
-    /*this.draw = function(ctx) {
-        let x = this.i*this.w;
-        let y = this.j*this.w;
-        ctx.beginPath();
-        if(this.walls[0]) {
-            ctx.moveTo(x,y);
-            ctx.lineTo(x+this.w,y);
-        }
-        if(this.walls[1]) {
-            ctx.moveTo(x+w,y);
-            ctx.lineTo(x+this.w,y+w);
-        }
-        if(this.walls[2]) {
-            ctx.moveTo(x+this.w,y+this.w);
-            ctx.lineTo(x,y+this.w);
-        }
-        if(this.walls[3]) {
-            ctx.moveTo(x,y+this.w);
-            ctx.lineTo(x,y);
-        }
-
-        if(this.visited) {
-            ctx.fillStyle = "#FF0000";
-            ctx.fillRect(x, y, w, w);
-            //ctx.rect(x,y,w/2,w/2);
-        }else {
-            ctx.fillStyle = "#525252";
-            ctx.fillRect(x, y, w, w);
-        }
-        
-        ctx.stroke();
-    }*/
 }
 
 module.exports.setupMaze = setupMaze;
+module.exports.index = index;
