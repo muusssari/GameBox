@@ -1,4 +1,5 @@
 const Player = require('./server/Player')
+const Maze = require('./server/maze')
 const express = require('express');
 const app = express();
 const serv = require('http').Server(app);
@@ -13,7 +14,7 @@ app.use('/client', express.static(__dirname + '/client'));
 serv.listen(2000);
 console.log("Server Started");
 
-
+const grid = Maze.setupMaze();
 
 let SOCKET_LIST = [];
 let PLAYER_LIST = [];
@@ -40,7 +41,8 @@ io.sockets.on('connection', function(socket) {
         else if(data.inputId=== 'down')
             player.pressingDown = data.state;
     });
-    //socket.emit('maze', );
+    socket.emit('maze', grid);
+    socket.emit('id', socket.id)
 });
 
 setInterval(function () {
