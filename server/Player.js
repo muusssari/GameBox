@@ -1,22 +1,22 @@
 
 const CreatePlayer = function(id,cell) {
     let self = {
-        x:10,
-        y:30,
+        x:0,
+        y:0,
         id:id,
         pressingRight:false,
         pressingLeft:false,
         pressingUp:false,
         pressingDown:false,
-        maxSpd:40,
+        maxSpd:cell.w,
         currentCell:cell,
         isReady:false,
         inLobby: false,
         inGame: false,
     }
     self.init = function (cell) {
-        self.x = 10;
-        self.y = 30;
+        self.x = cell.w/3;
+        self.y = cell.w/3;
         self.currentCell = cell;
     }
     self.updatePosition = function() {

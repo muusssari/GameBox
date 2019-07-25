@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, 'client')));
 serv.listen(2000);
 console.log("Server Started");
 
-const grid = Maze.setupMaze();
+let grid = Maze.setupMaze();
 let SOCKET_LIST = [];
 let PLAYER_LIST = [];
 let INLOBBY = [];
@@ -59,6 +59,7 @@ io.sockets.on('connection', function(socket) {
         
     });
     socket.on('startGame', function() {
+        grid = Maze.setupMaze();
         for (const i in PLAYER_LIST) {
             const player = PLAYER_LIST[i];
             if(INLOBBY.includes(player.id)) {
@@ -70,13 +71,19 @@ io.sockets.on('connection', function(socket) {
         for (const i in SOCKET_LIST) {
             const socket = SOCKET_LIST[i];
             if(INLOBBY.includes(socket.id)){
-                socket.emit('startGame', true);
+                socket.emit('startGame', grid);
             }
         }
         INLOBBY = [];
     });
     socket.on('addPlayer', function(data) {
-        const player = PLAYER_LIST[data.id];
+        addPlayerToLobby(data);
+    });
+    socket.emit('id', socket.id);
+});
+
+function addPlayerToLobby(data) {
+    const player = PLAYER_LIST[data.id];
         player.isReady = data.state;
         if(!INLOBBY.includes(data.id)) {
             INLOBBY.push(data.id);
@@ -99,10 +106,7 @@ io.sockets.on('connection', function(socket) {
                 socket.emit('playersLobby', pack);
             }
         }
-    });
-    socket.emit('maze', grid);
-    socket.emit('id', socket.id);
-});
+}
 
 setInterval(function () {
     let pack = [];

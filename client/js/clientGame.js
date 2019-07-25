@@ -11,9 +11,6 @@ let lobby = [];
 let myId;
 
 //Get data from server
-socket.on('maze', function(data) {
-    mazeGrid = data;
-});
 socket.on('playersLobby', function(data) {
     refressLobby(data);
 });
@@ -27,6 +24,7 @@ socket.on('newPositions', function(data) {
     });
 });
 socket.on('startGame', function(data) {
+    mazeGrid = data;
     startGame();
 });
 
@@ -65,8 +63,6 @@ function setCanvasTouch(canvas) {
         event.preventDefault();
         const xNum = x - xStart;
         const yNum = y - yStart;
-        console.log(x, xStart , xNum);
-        console.log(y, yStart , yNum);
         if(Math.abs(xNum) <= Math.abs(yNum)) {
             if(yNum > 0) {
                 socket.emit('keyPress',{inputId:'down', state: true});
@@ -86,11 +82,12 @@ function setCanvasTouch(canvas) {
 //Draw
 function startGame() {
     main.innerHTML = "";
-    header.innerHTML = "Maze Game";
+    header.innerHTML = "Maze Game <spam>"+ myId +"</spam>" ;
     const canvas = document.createElement('canvas');
     canvas.id = "ctx";
-    canvas.width = 400;
-    canvas.height = 400;
+    canvas.width = 370;
+    canvas.height = 370;
+    const w = mazeGrid[0].w;
     main.appendChild(canvas);
     const ctx = canvas.getContext("2d");
     ctx.font = '25px Arial';
@@ -100,7 +97,14 @@ function startGame() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         drawMaze(mazeGrid, ctx);
         sockets.forEach(socket => {
-            ctx.fillText(socket.id ,socket.x , socket.y);
+            ctx.beginPath();
+            if(socket.id == myId) {
+                ctx.fillStyle = "#a1dd70";
+            }else {
+                ctx.fillStyle = "#6c7b95";
+            }
+            ctx.fillRect(socket.x, socket.y, w/3,w/3);
+            ctx.stroke();
         });
     },1000/100);
 }
@@ -122,13 +126,12 @@ function loadLobby(set) {
 }
 
 function refressLobby(data) {
-    header.innerHTML = "Game Lobby"
+    header.innerHTML = "Game Lobby <spam>"+ myId +"</spam>"
     lobby = [];
     data.forEach((d) => {
         lobby.push(d.ready);
     });
-    console.log(data.length);
-    main.innerHTML = "<h1>Players In lobby Min Players 2:</h1>";
+    main.innerHTML = "<h1>Players In lobby (Min Players 2):</h1>";
     data.forEach((user) => {
         main.innerHTML += "<p>Name: " + user.id +"  Ready?:"+ user.ready+ "</p>";
     });

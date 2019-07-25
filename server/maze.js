@@ -1,5 +1,5 @@
-const  w = 40;
-const  widthHeight = 400;
+const  w = 35;
+const  widthHeight = 370;
 const cols = Math.floor(widthHeight/w);
 const rows = Math.floor(widthHeight/w);
 

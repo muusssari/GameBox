@@ -10,6 +10,7 @@ function drawCell(cell, ctx) {
     let x = cell.i*cell.w;
     let y = cell.j*cell.w;
     ctx.beginPath();
+    ctx.lineWidth = "3";
     if(cell.walls[0]) {
         ctx.moveTo(x,y);
         ctx.lineTo(x+cell.w,y);

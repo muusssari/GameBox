@@ -6,3 +6,10 @@ canvas {
     display: block;
     border: 1px solid black"
 }
+body {
+    margin: 0;
+}
+h3 {
+    margin-left: auto;
+    margin-right: auto;
+}
