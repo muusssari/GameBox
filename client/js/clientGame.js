@@ -49,6 +49,7 @@ document.onkeydown = function(event)  {
 
 //Draw
 function startGame() {
+    
     main.innerHTML = "";
     header.innerHTML = "Maze Game";
     const canvas = document.createElement('canvas');
@@ -99,10 +100,7 @@ function refressLobby(data) {
     button.innerHTML = "ready";
     button.addEventListener("click", () => { loadLobby(true)});
     main.appendChild(button);
-    console.log(lobby.length);
     if(lobby.length >= 2) {
-        console.log("min");
-        console.log(checkLobbyReady());
         if(checkLobbyReady()) {
             console.log("start")
             const start = document.createElement('button');
@@ -114,15 +112,11 @@ function refressLobby(data) {
     }
 }
 function checkLobbyReady() {
-    let x = false;
+    let x = true;
     lobby.forEach((player) => {
         if(!player) {
             x = false;
-            return;
-        }else {
-            x = true;
         }
-        
     });
     return x;
 }

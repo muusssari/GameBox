@@ -12,6 +12,7 @@ const CreatePlayer = function(id,cell) {
         currentCell:cell,
         isReady:false,
         inLobby: false,
+        inGame: false,
     }
     self.updatePosition = function() {
         if(self.pressingRight)

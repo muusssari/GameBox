@@ -18,6 +18,7 @@ console.log("Server Started");
 const grid = Maze.setupMaze();
 let SOCKET_LIST = [];
 let PLAYER_LIST = [];
+let INLOBBY = [];
 
 io.sockets.on('connection', function(socket) {
     socket.id = SOCKET_LIST.length;
@@ -32,32 +33,54 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('keyPress', function(data) {
-        if(data.inputId=== 'left' && !player.currentCell.walls[3]) {
-            player.pressingLeft = data.state;
-            player.currentCell = grid[Maze.index(player.currentCell.i-1,player.currentCell.j)];
+        console.log(player)
+        if(player.inGame) {
+            if(data.inputId=== 'left' && !player.currentCell.walls[3]) {
+                player.pressingLeft = data.state;
+                player.currentCell = grid[Maze.index(player.currentCell.i-1,player.currentCell.j)];
+            }
+            else if(data.inputId=== 'right' && !player.currentCell.walls[1]){
+                player.pressingRight = data.state;
+                player.currentCell = grid[Maze.index(player.currentCell.i+1,player.currentCell.j)];
+            }
+            else if(data.inputId=== 'up' && !player.currentCell.walls[0]){
+                player.pressingUp = data.state;
+                player.currentCell = grid[Maze.index(player.currentCell.i,player.currentCell.j-1)];
+            }
+            else if(data.inputId=== 'down' && !player.currentCell.walls[2]){
+                player.pressingDown = data.state;
+                player.currentCell = grid[Maze.index(player.currentCell.i,player.currentCell.j+1)];
+            }
+    
+            if(player.currentCell.goal) {
+                console.log("winner");
+                player.inGame = false;
+            }
         }
-        else if(data.inputId=== 'right' && !player.currentCell.walls[1]){
-            player.pressingRight = data.state;
-            player.currentCell = grid[Maze.index(player.currentCell.i+1,player.currentCell.j)];
-        }
-        else if(data.inputId=== 'up' && !player.currentCell.walls[0]){
-            player.pressingUp = data.state;
-            player.currentCell = grid[Maze.index(player.currentCell.i,player.currentCell.j-1)];
-        }
-        else if(data.inputId=== 'down' && !player.currentCell.walls[2]){
-            player.pressingDown = data.state;
-            player.currentCell = grid[Maze.index(player.currentCell.i,player.currentCell.j+1)];
-        }
+        
     });
     socket.on('startGame', function() {
+        for (const i in PLAYER_LIST) {
+            const player = PLAYER_LIST[i];
+            if(INLOBBY.includes(player.id)) {
+                player.inGame = true;
+                player.inLobby = false;
+            }
+        }
         for (const i in SOCKET_LIST) {
             const socket = SOCKET_LIST[i];
-            socket.emit('startGame', true);
+            if(INLOBBY.includes(socket.id)){
+                socket.emit('startGame', true);
+            }
         }
+        INLOBBY = [];
     });
     socket.on('addPlayer', function(data) {
         const player = PLAYER_LIST[data.id];
         player.isReady = data.state;
+        if(!INLOBBY.includes(data.id)) {
+            INLOBBY.push(data.id);
+        }
         player.inLobby = true;
         let pack = [];
         for (const i in PLAYER_LIST) {
@@ -69,9 +92,12 @@ io.sockets.on('connection', function(socket) {
                 });
             }
         }
+        
         for (const i in SOCKET_LIST) {
             const socket = SOCKET_LIST[i];
-            socket.emit('playersLobby', pack);
+            if(INLOBBY.includes(socket.id)){
+                socket.emit('playersLobby', pack);
+            }
         }
     });
     socket.emit('maze', grid);
