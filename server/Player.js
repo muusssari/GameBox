@@ -10,6 +10,8 @@ const CreatePlayer = function(id,cell) {
         pressingDown:false,
         maxSpd:40,
         currentCell:cell,
+        isReady:false,
+        inLobby: false,
     }
     self.updatePosition = function() {
         if(self.pressingRight)

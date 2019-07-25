@@ -49,12 +49,37 @@ io.sockets.on('connection', function(socket) {
             player.currentCell = grid[Maze.index(player.currentCell.i,player.currentCell.j+1)];
         }
     });
+    socket.on('startGame', function() {
+        for (const i in SOCKET_LIST) {
+            const socket = SOCKET_LIST[i];
+            socket.emit('startGame', true);
+        }
+    });
+    socket.on('addPlayer', function(data) {
+        const player = PLAYER_LIST[data.id];
+        player.isReady = data.state;
+        player.inLobby = true;
+        let pack = [];
+        for (const i in PLAYER_LIST) {
+            const player = PLAYER_LIST[i];
+            if(player.inLobby) {
+                pack.push({
+                    ready:player.isReady,
+                    id:player.id
+                });
+            }
+        }
+        for (const i in SOCKET_LIST) {
+            const socket = SOCKET_LIST[i];
+            socket.emit('playersLobby', pack);
+        }
+    });
     socket.emit('maze', grid);
-    socket.emit('id', socket.id)
+    socket.emit('id', socket.id);
 });
 
 setInterval(function () {
-    var pack = [];
+    let pack = [];
     for (const i in PLAYER_LIST) {
         let player = PLAYER_LIST[i];
         player.updatePosition();

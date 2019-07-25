@@ -6,11 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Maze Game</title>
     <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    
 </head>
 <body>
-    <h3>The Maze Game - <spam id="id"></spam></h3>
-    <canvas id="ctx" width="400" height="400" style="border: 1px solid black"></canvas>
-    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <h3 id="header"><spam id="id"></spam></h3>
+
+    <div id="main">
+    </div>
     <script type="module" src="./client/js/clientGame.js"></script>
 </body>
 </html>
