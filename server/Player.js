@@ -14,6 +14,11 @@ const CreatePlayer = function(id,cell) {
         inLobby: false,
         inGame: false,
     }
+    self.init = function (cell) {
+        self.x = 10;
+        self.y = 30;
+        self.currentCell = cell;
+    }
     self.updatePosition = function() {
         if(self.pressingRight)
             self.x += self.maxSpd;

@@ -33,7 +33,6 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('keyPress', function(data) {
-        console.log(player)
         if(player.inGame) {
             if(data.inputId=== 'left' && !player.currentCell.walls[3]) {
                 player.pressingLeft = data.state;
@@ -63,6 +62,7 @@ io.sockets.on('connection', function(socket) {
         for (const i in PLAYER_LIST) {
             const player = PLAYER_LIST[i];
             if(INLOBBY.includes(player.id)) {
+                player.init(grid[0]);
                 player.inGame = true;
                 player.inLobby = false;
             }

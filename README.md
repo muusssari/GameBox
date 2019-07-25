@@ -7,7 +7,6 @@ node app.js
 then go localhost:2000
 
 coming/known issues
-- lobby
 - hole area into maze
 - timer
 - logging system?

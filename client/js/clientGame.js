@@ -46,10 +46,45 @@ document.onkeydown = function(event)  {
         socket.emit('keyPress',{inputId:'up', state: true});
     }
 }
+function setCanvasTouch(canvas) {
+    let xStart;
+    let yStart;
+    let x;
+    let y;
+    canvas.addEventListener("touchmove", function(event) {
+        event.preventDefault();
+        x = event.targetTouches[0].clientX;
+        y = event.targetTouches[0].clientY;
+    });
+    canvas.addEventListener("touchstart", function(event) {
+        event.preventDefault();
+        xStart = event.targetTouches[0].clientX;
+        yStart = event.targetTouches[0].clientY;
+    });
+    canvas.addEventListener("touchend", function() {
+        event.preventDefault();
+        const xNum = x - xStart;
+        const yNum = y - yStart;
+        console.log(x, xStart , xNum);
+        console.log(y, yStart , yNum);
+        if(Math.abs(xNum) <= Math.abs(yNum)) {
+            if(yNum > 0) {
+                socket.emit('keyPress',{inputId:'down', state: true});
+            }else {
+                socket.emit('keyPress',{inputId:'up', state: true});
+            }
+        }else {
+            if(xNum > 0){
+                socket.emit('keyPress',{inputId:'right', state: true});
+            }else {
+                socket.emit('keyPress',{inputId:'left', state: true});
+            }
+        }
+    });
+}
 
 //Draw
 function startGame() {
-    
     main.innerHTML = "";
     header.innerHTML = "Maze Game";
     const canvas = document.createElement('canvas');
@@ -60,6 +95,7 @@ function startGame() {
     const ctx = canvas.getContext("2d");
     ctx.font = '25px Arial';
     ctx.fillStyle = "#525252";
+    setCanvasTouch(canvas);
     setInterval(function () {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         drawMaze(mazeGrid, ctx);
@@ -91,6 +127,7 @@ function refressLobby(data) {
     data.forEach((d) => {
         lobby.push(d.ready);
     });
+    console.log(data.length);
     main.innerHTML = "<h1>Players In lobby Min Players 2:</h1>";
     data.forEach((user) => {
         main.innerHTML += "<p>Name: " + user.id +"  Ready?:"+ user.ready+ "</p>";
@@ -102,7 +139,6 @@ function refressLobby(data) {
     main.appendChild(button);
     if(lobby.length >= 2) {
         if(checkLobbyReady()) {
-            console.log("start")
             const start = document.createElement('button');
             start.value = "button";
             start.innerHTML = "start";
