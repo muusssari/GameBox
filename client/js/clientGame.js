@@ -112,7 +112,7 @@ function startGame() {
 function CreateMain() {
     const button = document.createElement('button');
     button.value = "button";
-    button.innerHTML = "Player";
+    button.innerHTML = "Join Game";
     button.addEventListener("click", () => { loadLobby(false)});
     main.appendChild(button);
 }

@@ -56,7 +56,6 @@ io.sockets.on('connection', function(socket) {
                 player.inGame = false;
             }
         }
-        
     });
     socket.on('startGame', function() {
         grid = Maze.setupMaze();

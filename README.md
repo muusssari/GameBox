@@ -7,7 +7,6 @@ node app.js
 then go localhost:2000
 
 coming/known issues
-- hole area into maze
 - timer
 - logging system?
 - remove disconnected players from lobby

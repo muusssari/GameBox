@@ -1,4 +1,4 @@
-const  w = 35;
+let  w = 25;
 const  widthHeight = 370;
 const cols = Math.floor(widthHeight/w);
 const rows = Math.floor(widthHeight/w);
@@ -40,6 +40,8 @@ function removeWalls(a, b) {
 function createMaze(grid) {
     let building = false;
     let current = grid[0];
+    grid[grid.length-1].goal = true;
+    let stack = [];
     current.start = true;
 
     do {
@@ -49,10 +51,13 @@ function createMaze(grid) {
             next.visited = true;
             removeWalls(current, next);
             current = next;
+            stack.push(current);
 
 
-
-        }else {
+        }else if(stack.length > 0) {
+            current = stack.pop();
+        }
+        else {
             building = true;
         }
     }while (!building);
@@ -99,7 +104,6 @@ const Cell = function(i,j, w) {
             let r = Math.floor(Math.random() * neighbors.length);
             return neighbors[r];
         }else {
-            this.goal = true; //Set end
             return undefined;
         }
     }
@@ -107,3 +111,4 @@ const Cell = function(i,j, w) {
 
 module.exports.setupMaze = setupMaze;
 module.exports.index = index;
+module.exports.w = w;
