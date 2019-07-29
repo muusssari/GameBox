@@ -1,9 +1,10 @@
 import drawMaze from "./mazeDrawing.js";
+import CustomAlert from "./customAlert.js";
 
+const customAlert = new CustomAlert();
 //Setup
 const main = document.getElementById("main");
 const header = document.getElementById("header");
-const id = document.getElementById("id");
 let socket = io();
 let mazeGrid = [];
 let sockets = [];
@@ -27,23 +28,30 @@ socket.on('startGame', function(data) {
     mazeGrid = data;
     startGame();
 });
+socket.on('winner', function(data) {
+    customAlert.render("winner is " + data, myId);
+    const button = document.createElement('button');
+    button.innerHTML = "Back to menu";
+    button.addEventListener("click", CreateMain);
+    document.getElementById('main').appendChild(button);
+});
+
+
 
 
 //Send Button pressings to server
-document.onkeydown = function(event)  {
-    if(event.keyCode === 68) { //d
-        socket.emit('keyPress',{inputId:'right', state: true});
-    }
-    else if(event.keyCode === 83) { //s
-        socket.emit('keyPress',{inputId:'down', state: true});
-    }
-    else if(event.keyCode === 65) {  //a
-        socket.emit('keyPress',{inputId:'left', state: true});
-    }
-    else if(event.keyCode === 87) {  //w
-        socket.emit('keyPress',{inputId:'up', state: true});
+document.onkeydown = function(event) {
+    if (event.keyCode === 68) { //d
+        socket.emit('keyPress', { inputId: 'right', state: true });
+    } else if (event.keyCode === 83) { //s
+        socket.emit('keyPress', { inputId: 'down', state: true });
+    } else if (event.keyCode === 65) { //a
+        socket.emit('keyPress', { inputId: 'left', state: true });
+    } else if (event.keyCode === 87) { //w
+        socket.emit('keyPress', { inputId: 'up', state: true });
     }
 }
+
 function setCanvasTouch(canvas) {
     let xStart;
     let yStart;
@@ -63,17 +71,17 @@ function setCanvasTouch(canvas) {
         event.preventDefault();
         const xNum = x - xStart;
         const yNum = y - yStart;
-        if(Math.abs(xNum) <= Math.abs(yNum)) {
-            if(yNum > 0) {
-                socket.emit('keyPress',{inputId:'down', state: true});
-            }else {
-                socket.emit('keyPress',{inputId:'up', state: true});
+        if (Math.abs(xNum) <= Math.abs(yNum)) {
+            if (yNum > 0) {
+                socket.emit('keyPress', { inputId: 'down', state: true });
+            } else {
+                socket.emit('keyPress', { inputId: 'up', state: true });
             }
-        }else {
-            if(xNum > 0){
-                socket.emit('keyPress',{inputId:'right', state: true});
-            }else {
-                socket.emit('keyPress',{inputId:'left', state: true});
+        } else {
+            if (xNum > 0) {
+                socket.emit('keyPress', { inputId: 'right', state: true });
+            } else {
+                socket.emit('keyPress', { inputId: 'left', state: true });
             }
         }
     });
@@ -82,7 +90,7 @@ function setCanvasTouch(canvas) {
 //Draw
 function startGame() {
     main.innerHTML = "";
-    header.innerHTML = "Maze Game <spam>"+ myId +"</spam>" ;
+    header.innerHTML = "Maze Game <spam>" + myId + "</spam>";
     const canvas = document.createElement('canvas');
     canvas.id = "ctx";
     canvas.width = 370;
@@ -93,81 +101,90 @@ function startGame() {
     ctx.font = '25px Arial';
     ctx.fillStyle = "#525252";
     setCanvasTouch(canvas);
-    setInterval(function () {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
+    setInterval(function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawMaze(mazeGrid, ctx);
         sockets.forEach(socket => {
             ctx.beginPath();
-            if(socket.id == myId) {
+            if (socket.id == myId) {
                 ctx.fillStyle = "#a1dd70";
-            }else {
+            } else {
                 ctx.fillStyle = "#6c7b95";
             }
-            ctx.fillRect(socket.x, socket.y, w/3,w/3);
+            ctx.fillRect(socket.x, socket.y, w / 3, w / 3);
             ctx.stroke();
         });
-    },1000/100);
+    }, 1000 / 100);
 }
 
 function showHelp() {
-    console.log('On desktop use w,a,s,d to move, mobile wipe direction that you want to move')
-    alert('On desktop use w,a,s,d to move, mobile wipe direction that you want to move');
+    console.log('Instruction\nOn desktop use w,a,s,d to move\nOn mobile wipe direction that you want to move')
+    alert('Instruction\nOn desktop use w,a,s,d to move\nOn mobile wipe direction that you want to move');
 }
 //Lobby
 function CreateMain() {
+    main.innerHTML = "";
+    const div = document.createElement('div');
+    div.setAttribute("id", "text");
     const button = document.createElement('button');
     button.innerHTML = "Join Game";
     const button2 = document.createElement('button');
     button2.innerHTML = "help";
     button2.addEventListener("click", showHelp);
-    button.addEventListener("click", () => { loadLobby(false)});
-    main.appendChild(button);
-    main.appendChild(button2);
+    button.addEventListener("click", () => { loadLobby(false) });
+    div.appendChild(button);
+    div.appendChild(button2);
+    main.appendChild(div);
 }
 CreateMain();
+
 function loadLobby(set) {
-    if(set) {
-        socket.emit('addPlayer', {id:myId, state:true});
-    }else {
-        socket.emit('addPlayer', {id:myId, state:false});
+    if (set) {
+        socket.emit('addPlayer', { id: myId, state: true });
+    } else {
+        socket.emit('addPlayer', { id: myId, state: false });
     }
 }
+
 function refressLobby(data) {
-    header.innerHTML = "Game Lobby <spam>"+ myId +"</spam>"
+    header.innerHTML = "Game Lobby <spam>" + myId + "</spam>"
     lobby = [];
     data.forEach((d) => {
         lobby.push(d.ready);
     });
     main.innerHTML = "<h1>Players In lobby (Min Players 2):</h1>";
+    const div = document.createElement('div');
+    div.setAttribute("id", "text");
     data.forEach((user) => {
-        main.innerHTML += "<p>Name: " + user.id +"  Ready?:"+ user.ready+ "</p>";
+        main.innerHTML += "<p>Name: " + user.id + "  Ready?:" + user.ready + "</p>";
     });
     const button = document.createElement('button');
     button.value = "button";
     button.innerHTML = "ready";
-    button.addEventListener("click", () => { loadLobby(true)});
+    button.addEventListener("click", () => { loadLobby(true) });
     const button2 = document.createElement('button');
     button2.innerHTML = "help";
     button2.addEventListener("click", showHelp);
-    main.appendChild(button);
-    main.appendChild(button2);
-    if(lobby.length >= 2) {
-        if(checkLobbyReady()) {
+    div.appendChild(button);
+    div.appendChild(button2);
+    main.appendChild(div);
+    if (lobby.length >= 2) {
+        if (checkLobbyReady()) {
             const start = document.createElement('button');
             start.value = "button";
             start.innerHTML = "start";
-            start.addEventListener("click", () => {socket.emit('startGame',true);});
+            start.addEventListener("click", () => { socket.emit('startGame', true); });
             main.appendChild(start);
         }
     }
 }
+
 function checkLobbyReady() {
     let x = true;
     lobby.forEach((player) => {
-        if(!player) {
+        if (!player) {
             x = false;
         }
     });
     return x;
 }
-

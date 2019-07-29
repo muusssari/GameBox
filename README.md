@@ -12,11 +12,13 @@ coming/known issues
 - remove disconnected players from lobby
 - have more than one game (sessions)
 - create own name
-- show winner
-- Add events (random jumps)
+- Add events (random jumps, etc)
 - add better tutorial
+- add chat to lobby
+- Create player when joining to lobby
 
 - better visual
 - favicon
+- sound effects
 
 - clean code and make more module

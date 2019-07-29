@@ -19,6 +19,7 @@ let grid = Maze.setupMaze();
 let SOCKET_LIST = [];
 let PLAYER_LIST = [];
 let INLOBBY = [];
+let INGAME = [];
 
 io.sockets.on('connection', function(socket) {
     socket.id = SOCKET_LIST.length;
@@ -53,7 +54,7 @@ io.sockets.on('connection', function(socket) {
     
             if(player.currentCell.goal) {
                 console.log("winner");
-                player.inGame = false;
+                winnerScoreScreen(player.id);
             }
         }
     });
@@ -70,6 +71,7 @@ io.sockets.on('connection', function(socket) {
         for (const i in SOCKET_LIST) {
             const socket = SOCKET_LIST[i];
             if(INLOBBY.includes(socket.id)){
+                INGAME.push(socket.id);
                 socket.emit('startGame', grid);
             }
         }
@@ -80,6 +82,22 @@ io.sockets.on('connection', function(socket) {
     });
     socket.emit('id', socket.id);
 });
+
+function winnerScoreScreen(winnerID) {
+    for (const i in PLAYER_LIST) {
+        const player = PLAYER_LIST[i];
+        if(INGAME.includes(player.id)) {
+            player.inGame = false;
+        }
+    }
+    for (const i in SOCKET_LIST) {
+        const socket = SOCKET_LIST[i];
+        if(INGAME.includes(socket.id)){
+            socket.emit('winner', winnerID);
+        }
+    }
+    INGAME = [];
+}
 
 function addPlayerToLobby(data) {
     const player = PLAYER_LIST[data.id];

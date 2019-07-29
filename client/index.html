@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,31 @@
     <title>Maze Game</title>
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-    
+    <script type="module" src="./client/js/clientGame.js"></script>
 </head>
+
 <body style="touch-action: none;">
+    <div id="dialogoverlay">
+        <div id="dialogbox">
+            <div>
+                <div id="dialogboxhead"></div>
+                <div id="dialogboxbody"></div>
+                <div id="dialogboxfoot"></div>
+            </div>
+        </div>
+    </div>
     <h3 id="header"></h3>
 
     <div id="main">
     </div>
-    <script type="module" src="./client/js/clientGame.js"></script>
+
 </body>
+
+<script>
+    function removeAler() {
+        document.getElementById('dialogbox').style.display = "none";
+        document.getElementById('dialogoverlay').style.display = "none";
+    }
+</script>
+
 </html>

@@ -1,15 +1,76 @@
 canvas {
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    border: 1px solid black"
+    margin: auto;
 }
+
 body {
     margin: 0;
 }
+
 h3 {
-    margin-left: auto;
-    margin-right: auto;
+    margin: auto;
+    width: 50%;
+    text-align: center;
+}
+
+#main {
+    text-align: center;
+}
+
+.button {
+    display: block;
+    margin: auto;
+    width: 50%;
+    text-align: center;
+}
+
+#text {
+    margin: auto;
+    width: 50%;
+    text-align: center;
+}
+
+#dialogoverlay {
+    display: none;
+    opacity: .8;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    background: #FFF;
+    width: 100%;
+    z-index: 10;
+    text-align: center;
+}
+
+#dialogbox {
+    margin: auto;
+    margin-top: 30%;
+    width: 80%;
+    display: none;
+    background: #000;
+    border-radius: 7px;
+    z-index: 10;
+}
+
+#dialogbox>div {
+    background: #FFF;
+    margin: 8px;
+}
+
+#dialogbox>div>#dialogboxhead {
+    background: #666;
+    font-size: 19px;
+    padding: 10px;
+    color: #CCC;
+}
+
+#dialogbox>div>#dialogboxbody {
+    background: #333;
+    padding: 20px;
+    color: #FFF;
+}
+
+#dialogbox>div>#dialogboxfoot {
+    background: #666;
+    padding: 10px;
+    text-align: right;
 }
