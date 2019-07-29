@@ -12,8 +12,9 @@ coming/known issues
 - remove disconnected players from lobby
 - have more than one game (sessions)
 - create own name
-- player colors
 - show winner
+- Add events (random jumps)
+- add better tutorial
 
 - better visual
 - favicon

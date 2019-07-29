@@ -38,9 +38,9 @@ function removeWalls(a, b) {
 }
 
 function createMaze(grid) {
+    let goal = [];
     let building = false;
     let current = grid[0];
-    grid[grid.length-1].goal = true;
     let stack = [];
     current.start = true;
 
@@ -55,13 +55,14 @@ function createMaze(grid) {
 
 
         }else if(stack.length > 0) {
+            goal.push(current);
             current = stack.pop();
         }
         else {
             building = true;
         }
     }while (!building);
-    //while (grid[99].visited == true)
+    goal[0].goal = true;
     return grid;
 }
 

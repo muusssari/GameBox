@@ -108,13 +108,21 @@ function startGame() {
         });
     },1000/100);
 }
+
+function showHelp() {
+    console.log('On desktop use w,a,s,d to move, mobile wipe direction that you want to move')
+    alert('On desktop use w,a,s,d to move, mobile wipe direction that you want to move');
+}
 //Lobby
 function CreateMain() {
     const button = document.createElement('button');
-    button.value = "button";
     button.innerHTML = "Join Game";
+    const button2 = document.createElement('button');
+    button2.innerHTML = "help";
+    button2.addEventListener("click", showHelp);
     button.addEventListener("click", () => { loadLobby(false)});
     main.appendChild(button);
+    main.appendChild(button2);
 }
 CreateMain();
 function loadLobby(set) {
@@ -124,7 +132,6 @@ function loadLobby(set) {
         socket.emit('addPlayer', {id:myId, state:false});
     }
 }
-
 function refressLobby(data) {
     header.innerHTML = "Game Lobby <spam>"+ myId +"</spam>"
     lobby = [];
@@ -139,7 +146,11 @@ function refressLobby(data) {
     button.value = "button";
     button.innerHTML = "ready";
     button.addEventListener("click", () => { loadLobby(true)});
+    const button2 = document.createElement('button');
+    button2.innerHTML = "help";
+    button2.addEventListener("click", showHelp);
     main.appendChild(button);
+    main.appendChild(button2);
     if(lobby.length >= 2) {
         if(checkLobbyReady()) {
             const start = document.createElement('button');
