@@ -7,7 +7,7 @@ const main = document.getElementById("main");
 const header = document.getElementById("header");
 let socket = io();
 let mazeGrid = [];
-let sockets = [];
+let Players = [];
 let lobby = [];
 let myId;
 
@@ -19,10 +19,7 @@ socket.on('id', function(data) {
     myId = data;
 });
 socket.on('newPositions', function(data) {
-    sockets = [];
-    data.forEach(socket => {
-        sockets.push(socket);
-    });
+    Players = data;
 });
 socket.on('startGame', function(data) {
     mazeGrid = data;
@@ -32,11 +29,15 @@ socket.on('winner', function(data) {
     customAlert.render("winner is " + data, myId);
     const button = document.createElement('button');
     button.innerHTML = "Back to menu";
-    button.addEventListener("click", CreateMain);
+    button.addEventListener("click", () => {socket.emit("BackToMain", false)});
     document.getElementById('main').appendChild(button);
 });
-
-
+socket.on('lobbyList', function(data) {
+    CreateMain(data);
+});
+socket.on('inLobby', function(data) {
+    CreateLobby(data);
+});
 
 
 //Send Button pressings to server
@@ -86,6 +87,15 @@ function setCanvasTouch(canvas) {
         }
     });
 }
+function createNewLobby() {
+    socket.emit('CreateLobby', true);
+}
+function joinlobby(id) {
+    socket.emit('joinLobby', id);
+}
+function leaveLobby(id) {
+    socket.emit('leaveLobby', id);
+}
 
 //Draw
 function startGame() {
@@ -104,17 +114,17 @@ function startGame() {
     setInterval(function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawMaze(mazeGrid, ctx);
-        sockets.forEach(socket => {
+        Players.forEach(p => {
             ctx.beginPath();
-            if (socket.id == myId) {
+            if (p.id == myId) {
                 ctx.fillStyle = "#a1dd70";
             } else {
                 ctx.fillStyle = "#6c7b95";
             }
-            ctx.fillRect(socket.x, socket.y, w / 3, w / 3);
+            ctx.fillRect(p.x, p.y, w / 3, w / 3);
             ctx.stroke();
         });
-    }, 1000 / 100);
+    }, 1000 / 25);
 }
 
 function showHelp() {
@@ -122,67 +132,96 @@ function showHelp() {
     alert('Instruction\nOn desktop use w,a,s,d to move\nOn mobile wipe direction that you want to move');
 }
 //Lobby
-function CreateMain() {
+function CreateMain(data) {
     main.innerHTML = "";
     const div = document.createElement('div');
     div.setAttribute("id", "text");
-    const button = document.createElement('button');
-    button.innerHTML = "Join Game";
+    const ul = document.createElement('ul');
+    if(data) {
+        data.forEach(lobby => {
+            const li = document.createElement('li');
+            const text = document.createElement('p');
+            text.innerHTML = "Lobby Name: " + lobby.id + " Players: " + lobby.players.length + " / 10    ";
+            const button = document.createElement('button');
+            button.innerHTML = "Join Game";
+            button.addEventListener("click", () =>{ joinlobby(lobby.id) } );
+            text.appendChild(button);
+            li.appendChild(text);
+            ul.appendChild(li);
+        });
+    }
+    div.appendChild(ul);
+    const button3 = document.createElement('button');
+    button3.innerHTML = "Start New Lobby";
     const button2 = document.createElement('button');
     button2.innerHTML = "help";
     button2.addEventListener("click", showHelp);
-    button.addEventListener("click", () => { loadLobby(false) });
-    div.appendChild(button);
-    div.appendChild(button2);
+    button3.addEventListener("click", createNewLobby);
+    main.appendChild(button3);
+    main.appendChild(button2);
     main.appendChild(div);
 }
-CreateMain();
-
-function loadLobby(set) {
-    if (set) {
-        socket.emit('addPlayer', { id: myId, state: true });
-    } else {
-        socket.emit('addPlayer', { id: myId, state: false });
-    }
-}
-
-function refressLobby(data) {
-    header.innerHTML = "Game Lobby <spam>" + myId + "</spam>"
-    lobby = [];
-    data.forEach((d) => {
-        lobby.push(d.ready);
-    });
-    main.innerHTML = "<h1>Players In lobby (Min Players 2):</h1>";
+function CreateLobby(data) {
+    main.innerHTML = "";
     const div = document.createElement('div');
     div.setAttribute("id", "text");
-    data.forEach((user) => {
-        main.innerHTML += "<p>Name: " + user.id + "  Ready?:" + user.ready + "</p>";
-    });
-    const button = document.createElement('button');
-    button.value = "button";
-    button.innerHTML = "ready";
-    button.addEventListener("click", () => { loadLobby(true) });
+    const ul = document.createElement('ul');
+    if(data.players) {
+        data.players.forEach(player => {
+            const li = document.createElement('li');
+            const text = document.createElement('p');
+            text.innerHTML = "Player id " + player.id + "   ";
+            const button = document.createElement('button');
+            const buttonReady = document.createElement('button');
+            const readyText = document.createElement('spam');
+            if(player.id == myId) {
+                button.innerHTML = "Leave";
+                button.addEventListener("click", () => { leaveLobby(player.lobby) });
+            }else {
+                button.innerHTML = "vote kick";
+                button.addEventListener("click", () => { console.log("kick here") });
+            }
+
+            if(player.isReady && player.id == myId) {
+                buttonReady.innerHTML = "Ready";
+                buttonReady.addEventListener("click", () => { socket.emit("setReady", false) });
+                text.appendChild(buttonReady);
+            }else if(player.id == myId) {
+                buttonReady.innerHTML = "Not Ready";
+                buttonReady.addEventListener("click", () => { socket.emit("setReady", true) });
+                text.appendChild(buttonReady);
+            }else {
+                if(player.isReady){
+                    readyText.innerHTML = " Ready ";
+                }else {
+                    readyText.innerHTML = " Not Ready ";
+                }
+                text.appendChild(readyText);
+            }
+            
+            text.appendChild(button);
+            li.appendChild(text);
+            ul.appendChild(li);
+        });
+    }
+    div.appendChild(ul);
+    if(checkLobbyReady(data.players) && data.players.length > 0) {
+        const startButton = document.createElement('button');
+        startButton.innerHTML = "Start Game";
+        startButton.addEventListener("click", () => {socket.emit("startGame", data.id)});
+        div.appendChild(startButton)
+    }
     const button2 = document.createElement('button');
     button2.innerHTML = "help";
     button2.addEventListener("click", showHelp);
-    div.appendChild(button);
-    div.appendChild(button2);
+    main.appendChild(button2);
     main.appendChild(div);
-    if (lobby.length >= 2) {
-        if (checkLobbyReady()) {
-            const start = document.createElement('button');
-            start.value = "button";
-            start.innerHTML = "start";
-            start.addEventListener("click", () => { socket.emit('startGame', true); });
-            main.appendChild(start);
-        }
-    }
 }
 
-function checkLobbyReady() {
+function checkLobbyReady(players) {
     let x = true;
-    lobby.forEach((player) => {
-        if (!player) {
+    players.forEach((player) => {
+        if (!player.isReady) {
             x = false;
         }
     });

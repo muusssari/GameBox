@@ -5,7 +5,6 @@ const rows = Math.floor(widthHeight/w);
 
 function setupMaze() {
     const grid = createGrid();
-    console.log("maze done");
     return createMaze(grid);
 }
 function createGrid() {
