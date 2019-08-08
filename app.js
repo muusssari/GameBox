@@ -18,12 +18,12 @@ console.log("Server Started");
 
 let grid = Maze.setupMaze();
 //Players has same soket and player id
-let SOCKET_LIST = [];
-let PLAYER_LIST = [];
+const SOCKET_LIST = [];
+const PLAYER_LIST = [];
 
 //lobbies
 let LOBBIES = [];
-//LOBBIES.push(Lobby.creteLobby(LOBBIES.length));
+LOBBIES.push(Lobby.creteLobby(LOBBIES.length));
 
 
 //LOBBIES[1].AddPlayer(Player.Create(0, grid[0]))
@@ -84,8 +84,19 @@ io.sockets.on('connection', function(socket) {
         }
         INLOBBY = [];
     });
-    socket.on('addPlayer', function(data) {
-        addPlayerToLobby(data);
+    socket.on('joinLobby', function(id) {
+        LOBBIES[id].AddPlayer(PLAYER_LIST[socket.id]);
+        const player = PLAYER_LIST[socket.id];
+        player.lobby = id;
+    });
+    socket.on('leaveLobby', function(id) {
+        for(let i = 0; i < LOBBIES[id].players.length; i++) {
+            if(LOBBIES[id].players[i].id == socket.id){
+                LOBBIES[id].players.splice(i,1);
+            }
+        }
+        PLAYER_LIST[socket.id].lobby = null;
+        
     });
     socket.on('CreateLobby', function() {
         const len = LOBBIES.length;
@@ -171,17 +182,11 @@ setInterval(function () {
         
         if(player.inGame){
             socket.emit('game', LOBBIES[player.lobby]);
-            player.updatePosition();
-            pack.push({
-                x:player.x,
-                y:player.y,
-                id:player.id
-        });
         }
     }
     if(timer > 25) {
         timer = 0;
-        console.log("refress lobby");
+        //console.log("refress lobby");
     }
     timer++;
 },2000/25); //refress lobby every 2 sec

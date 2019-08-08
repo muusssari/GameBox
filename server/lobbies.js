@@ -7,7 +7,6 @@ const CreateLobby = function(id) {
     }
     self.AddPlayer = function (player) {
         self.players.push(player);
-        player.lobby = self.id;
     }
     return self;
 }

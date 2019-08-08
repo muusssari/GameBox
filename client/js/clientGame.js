@@ -93,6 +93,12 @@ function setCanvasTouch(canvas) {
 function createNewLobby() {
     socket.emit('CreateLobby', true);
 }
+function joinlobby(id) {
+    socket.emit('joinLobby', id);
+}
+function leaveLobby(id) {
+    socket.emit('leaveLobby', id);
+}
 
 //Draw
 function startGame() {
@@ -141,7 +147,7 @@ function CreateMain(data) {
             text.innerHTML = "Lobby Name: " + lobby.id + " Players: " + lobby.players.length + " / 10    ";
             const button = document.createElement('button');
             button.innerHTML = "Join Game";
-            button.addEventListener("click", () => { loadLobby(false) });
+            button.addEventListener("click", () =>{ joinlobby(lobby.id) } );
             text.appendChild(button);
             li.appendChild(text);
             ul.appendChild(li);
@@ -169,8 +175,14 @@ function CreateLobby(data) {
             const text = document.createElement('p');
             text.innerHTML = "Player id " + player.id + "   ";
             const button = document.createElement('button');
-            button.innerHTML = "vote kick";
-            button.addEventListener("click", () => { console.log("kick here") });
+            if(player.id == myId) {
+                button.innerHTML = "Leave";
+                button.addEventListener("click", () => { leaveLobby(player.lobby) });
+            }else {
+                button.innerHTML = "vote kick";
+                button.addEventListener("click", () => { console.log("kick here") });
+            }
+            
             text.appendChild(button);
             li.appendChild(text);
             ul.appendChild(li);
