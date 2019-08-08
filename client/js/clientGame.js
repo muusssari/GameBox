@@ -7,7 +7,7 @@ const main = document.getElementById("main");
 const header = document.getElementById("header");
 let socket = io();
 let mazeGrid = [];
-let sockets = [];
+let Players = [];
 let lobby = [];
 let myId;
 
@@ -19,10 +19,7 @@ socket.on('id', function(data) {
     myId = data;
 });
 socket.on('newPositions', function(data) {
-    sockets = [];
-    data.forEach(socket => {
-        sockets.push(socket);
-    });
+    Players = data;
 });
 socket.on('startGame', function(data) {
     mazeGrid = data;
@@ -32,7 +29,7 @@ socket.on('winner', function(data) {
     customAlert.render("winner is " + data, myId);
     const button = document.createElement('button');
     button.innerHTML = "Back to menu";
-    button.addEventListener("click", CreateMain);
+    button.addEventListener("click", () => {socket.emit("BackToMain", false)});
     document.getElementById('main').appendChild(button);
 });
 socket.on('lobbyList', function(data) {
@@ -117,17 +114,17 @@ function startGame() {
     setInterval(function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawMaze(mazeGrid, ctx);
-        sockets.forEach(socket => {
+        Players.forEach(p => {
             ctx.beginPath();
-            if (socket.id == myId) {
+            if (p.id == myId) {
                 ctx.fillStyle = "#a1dd70";
             } else {
                 ctx.fillStyle = "#6c7b95";
             }
-            ctx.fillRect(socket.x, socket.y, w / 3, w / 3);
+            ctx.fillRect(p.x, p.y, w / 3, w / 3);
             ctx.stroke();
         });
-    }, 1000 / 100);
+    }, 1000 / 25);
 }
 
 function showHelp() {
@@ -208,10 +205,10 @@ function CreateLobby(data) {
         });
     }
     div.appendChild(ul);
-    if(checkLobbyReady(data.players) && data.players.length > 1) {
+    if(checkLobbyReady(data.players) && data.players.length > 0) {
         const startButton = document.createElement('button');
         startButton.innerHTML = "Start Game";
-        startButton.addEventListener("click", () => {socket.emit(startGame, data.id)});
+        startButton.addEventListener("click", () => {socket.emit("startGame", data.id)});
         div.appendChild(startButton)
     }
     const button2 = document.createElement('button');

@@ -3,7 +3,8 @@ const CreateLobby = function(id) {
     let self = {
         id: id,
         game: false,
-        players: []
+        players: [],
+        maze:[]
     }
     self.AddPlayer = function (player) {
         self.players.push(player);

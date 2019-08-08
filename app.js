@@ -52,24 +52,24 @@ io.sockets.on('connection', function(socket) {
         if(player.inGame) {
             if(data.inputId=== 'left' && !player.currentCell.walls[3]) {
                 player.pressingLeft = data.state;
-                player.currentCell = grid[Maze.index(player.currentCell.i-1,player.currentCell.j)];
+                player.currentCell = LOBBIES[player.lobby].maze[Maze.index(player.currentCell.i-1,player.currentCell.j)];
             }
             else if(data.inputId=== 'right' && !player.currentCell.walls[1]){
                 player.pressingRight = data.state;
-                player.currentCell = grid[Maze.index(player.currentCell.i+1,player.currentCell.j)];
+                player.currentCell = LOBBIES[player.lobby].maze[Maze.index(player.currentCell.i+1,player.currentCell.j)];
             }
             else if(data.inputId=== 'up' && !player.currentCell.walls[0]){
                 player.pressingUp = data.state;
-                player.currentCell = grid[Maze.index(player.currentCell.i,player.currentCell.j-1)];
+                player.currentCell = LOBBIES[player.lobby].maze[Maze.index(player.currentCell.i,player.currentCell.j-1)];
             }
             else if(data.inputId=== 'down' && !player.currentCell.walls[2]){
                 player.pressingDown = data.state;
-                player.currentCell = grid[Maze.index(player.currentCell.i,player.currentCell.j+1)];
+                player.currentCell = LOBBIES[player.lobby].maze[Maze.index(player.currentCell.i,player.currentCell.j+1)];
             }
 
             if(player.currentCell.goal) {
                 console.log("winner");
-                winnerScoreScreen(player.id);
+                winnerScoreScreen(player.lobby, player.id);
             }
         }
     });
@@ -77,13 +77,14 @@ io.sockets.on('connection', function(socket) {
         PLAYER_LIST[socket.id].isReady=r;
     });
     socket.on('startGame', function(id) {
-        grid = Maze.setupMaze();
-        for (const p in LOBBIES[id].players) {
-            const player = PLAYER_LIST[p.id];
+        LOBBIES[id].game = true;
+        LOBBIES[id].maze = Maze.setupMaze();
+        const players = LOBBIES[id].players;
+        for(let i = 0; i < players.length; i++) {
+            const p = players[i];
+            p.init(LOBBIES[id].maze[0]);
             const socket = SOCKET_LIST[p.id];
-            player.inGame = true;
-            player.init(grid[0]);
-            socket.emit('startGame', grid);
+            socket.emit('startGame', LOBBIES[id].maze);
         }
     });
     socket.on('joinLobby', function(id) {
@@ -108,61 +109,65 @@ io.sockets.on('connection', function(socket) {
         LOBBIES[len].AddPlayer(player);
         socket.emit('inLobby', LOBBIES[len]);
     });
+    socket.on('BackToMain', function() {
+        PLAYER_LIST[socket.id].endGame();
+    });
     socket.emit('id', socket.id);
 });
 
-function winnerScoreScreen(winnerID) {
-    for (const i in PLAYER_LIST) {
-        const player = PLAYER_LIST[i];
-        if(INGAME.includes(player.id)) {
-            player.inGame = false;
-        }
+function winnerScoreScreen(lobbyId, winnerID) {
+    for(let i = 0; i < LOBBIES[lobbyId].players.length; i++) {
+        const player = LOBBIES[lobbyId].players[i];
+        const socket = SOCKET_LIST[player.id];
+        socket.emit('winner', winnerID);
+        player.GameEnd = true;
+        player.inGame = false;
     }
-    for (const i in SOCKET_LIST) {
-        const socket = SOCKET_LIST[i];
-        if(INGAME.includes(socket.id)){
-            socket.emit('winner', winnerID);
-        }
-    }
-    INGAME = [];
 }
 
-/*setInterval(function () {
-    let pack = [];
-    for (const i in PLAYER_LIST) {
-        let player = PLAYER_LIST[i];
-        player.updatePosition();
-        pack.push({
-            x:player.x,
-            y:player.y,
-            id:player.id
-        });
-    }
-    for (const i in SOCKET_LIST) {
-        let socket = SOCKET_LIST[i];
-        socket.emit('newPositions', pack);
-    }
-},1000/30);*/
 let timer = 0;
 setInterval(function () {
+    let pack = [];
+    for(let l = 0; l < LOBBIES.length; l++) {
+        let lob = [];
+        for(let p = 0; p < LOBBIES[l].players.length; p++){
+            const player = LOBBIES[l].players[p];
+            player.updatePosition();
+            lob.push({
+                x:player.x,
+                y:player.y,
+                id:player.id
+            });
+        }
+        pack.push(lob);
+    }
     for (const i in PLAYER_LIST) {
         const player = PLAYER_LIST[i];
         const socket = SOCKET_LIST[i];
-        if(player.lobby == null && timer >= 20){
+        if(player.GameEnd) {
+            return;
+        }
+        else if(player.inGame){
+            socket.emit('newPositions', pack[player.lobby]);
+        }
+        else if(player.lobby == null && timer >= 15){
             socket.emit('lobbyList', LOBBIES);
             //console.log(i, "not in lobby");
-        }else if(player.lobby != null && timer >= 20){
+        }else if(player.lobby != null && timer >= 15){
             socket.emit('inLobby', LOBBIES[player.lobby]);
             //console.log(i, "in lobby");
         }
         
-        if(player.inGame){
-            socket.emit('game', LOBBIES[player.lobby]);
-        }
     }
-    if(timer > 20) {
+    if(timer > 15) {
         timer = 0;
         //console.log("refress lobby");
     }
     timer++;
-},2000/25); //refress lobby every 2 sec
+
+    /*for(let c = 0; c < LOBBIES.length; c++) {
+        if(LOBBIES[c].players.length == 0) {
+            //LOBBIES.splice(c,1);
+        }
+    }*/
+},2000/20); //refress lobby every 2 sec

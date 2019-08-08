@@ -9,12 +9,11 @@ then go localhost:2000
 coming/known issues
 - timer
 - logging system?
-- have more than one game (sessions)
 - create own name
 - Add events (random jumps, etc)
 - add better tutorial
 - add chat to lobby
-- Create player when joining to lobby ? maybe no need
+- remove lobbies
 
 - better visual
 - favicon
