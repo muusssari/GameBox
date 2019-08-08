@@ -44,12 +44,10 @@ io.sockets.on('connection', function(socket) {
                 }
             }
         }
-        
         delete SOCKET_LIST[socket.id];
         delete PLAYER_LIST[socket.id];
         
     });
-
     socket.on('keyPress', function(data) {
         if(player.inGame) {
             if(data.inputId=== 'left' && !player.currentCell.walls[3]) {
@@ -75,24 +73,18 @@ io.sockets.on('connection', function(socket) {
             }
         }
     });
-    socket.on('startGame', function() {
+    socket.on('setReady', function(r) {
+        PLAYER_LIST[socket.id].isReady=r;
+    });
+    socket.on('startGame', function(id) {
         grid = Maze.setupMaze();
-        for (const i in PLAYER_LIST) {
-            const player = PLAYER_LIST[i];
-            if(INLOBBY.includes(player.id)) {
-                player.init(grid[0]);
-                player.inGame = true;
-                player.inLobby = false;
-            }
+        for (const p in LOBBIES[id].players) {
+            const player = PLAYER_LIST[p.id];
+            const socket = SOCKET_LIST[p.id];
+            player.inGame = true;
+            player.init(grid[0]);
+            socket.emit('startGame', grid);
         }
-        for (const i in SOCKET_LIST) {
-            const socket = SOCKET_LIST[i];
-            if(INLOBBY.includes(socket.id)){
-                INGAME.push(socket.id);
-                socket.emit('startGame', grid);
-            }
-        }
-        INLOBBY = [];
     });
     socket.on('joinLobby', function(id) {
         LOBBIES[id].AddPlayer(PLAYER_LIST[socket.id]);
@@ -115,7 +107,7 @@ io.sockets.on('connection', function(socket) {
         player.lobby = len;
         LOBBIES[len].AddPlayer(player);
         socket.emit('inLobby', LOBBIES[len]);
-    })
+    });
     socket.emit('id', socket.id);
 });
 
@@ -133,32 +125,6 @@ function winnerScoreScreen(winnerID) {
         }
     }
     INGAME = [];
-}
-
-function addPlayerToLobby(data) {
-    const player = PLAYER_LIST[data.id];
-        player.isReady = data.state;
-        if(!INLOBBY.includes(data.id)) {
-            INLOBBY.push(data.id);
-        }
-        player.inLobby = true;
-        let pack = [];
-        for (const i in PLAYER_LIST) {
-            const player = PLAYER_LIST[i];
-            if(player.inLobby) {
-                pack.push({
-                    ready:player.isReady,
-                    id:player.id
-                });
-            }
-        }
-        
-        for (const i in SOCKET_LIST) {
-            const socket = SOCKET_LIST[i];
-            if(INLOBBY.includes(socket.id)){
-                socket.emit('playersLobby', pack);
-            }
-        }
 }
 
 /*setInterval(function () {
@@ -182,10 +148,10 @@ setInterval(function () {
     for (const i in PLAYER_LIST) {
         const player = PLAYER_LIST[i];
         const socket = SOCKET_LIST[i];
-        if(player.lobby == null && timer >= 25){
+        if(player.lobby == null && timer >= 20){
             socket.emit('lobbyList', LOBBIES);
             //console.log(i, "not in lobby");
-        }else if(player.lobby != null && timer >= 25){
+        }else if(player.lobby != null && timer >= 20){
             socket.emit('inLobby', LOBBIES[player.lobby]);
             //console.log(i, "in lobby");
         }
@@ -194,7 +160,7 @@ setInterval(function () {
             socket.emit('game', LOBBIES[player.lobby]);
         }
     }
-    if(timer > 25) {
+    if(timer > 20) {
         timer = 0;
         //console.log("refress lobby");
     }

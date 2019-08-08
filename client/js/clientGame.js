@@ -175,12 +175,31 @@ function CreateLobby(data) {
             const text = document.createElement('p');
             text.innerHTML = "Player id " + player.id + "   ";
             const button = document.createElement('button');
+            const buttonReady = document.createElement('button');
+            const readyText = document.createElement('spam');
             if(player.id == myId) {
                 button.innerHTML = "Leave";
                 button.addEventListener("click", () => { leaveLobby(player.lobby) });
             }else {
                 button.innerHTML = "vote kick";
                 button.addEventListener("click", () => { console.log("kick here") });
+            }
+
+            if(player.isReady && player.id == myId) {
+                buttonReady.innerHTML = "Ready";
+                buttonReady.addEventListener("click", () => { socket.emit("setReady", false) });
+                text.appendChild(buttonReady);
+            }else if(player.id == myId) {
+                buttonReady.innerHTML = "Not Ready";
+                buttonReady.addEventListener("click", () => { socket.emit("setReady", true) });
+                text.appendChild(buttonReady);
+            }else {
+                if(player.isReady){
+                    readyText.innerHTML = " Ready ";
+                }else {
+                    readyText.innerHTML = " Not Ready ";
+                }
+                text.appendChild(readyText);
             }
             
             text.appendChild(button);
@@ -189,7 +208,12 @@ function CreateLobby(data) {
         });
     }
     div.appendChild(ul);
-    
+    if(checkLobbyReady(data.players) && data.players.length > 1) {
+        const startButton = document.createElement('button');
+        startButton.innerHTML = "Start Game";
+        startButton.addEventListener("click", () => {socket.emit(startGame, data.id)});
+        div.appendChild(startButton)
+    }
     const button2 = document.createElement('button');
     button2.innerHTML = "help";
     button2.addEventListener("click", showHelp);
@@ -197,51 +221,10 @@ function CreateLobby(data) {
     main.appendChild(div);
 }
 
-function loadLobby(set) {
-    if (set) {
-        socket.emit('addPlayer', { id: myId, state: true });
-    } else {
-        socket.emit('addPlayer', { id: myId, state: false });
-    }
-}
-
-function refressLobby(data) {
-    header.innerHTML = "Game Lobby <spam>" + myId + "</spam>"
-    lobby = [];
-    data.forEach((d) => {
-        lobby.push(d.ready);
-    });
-    main.innerHTML = "<h1>Players In lobby (Min Players 2):</h1>";
-    const div = document.createElement('div');
-    div.setAttribute("id", "text");
-    data.forEach((user) => {
-        main.innerHTML += "<p>Name: " + user.id + "  Ready?:" + user.ready + "</p>";
-    });
-    const button = document.createElement('button');
-    button.value = "button";
-    button.innerHTML = "ready";
-    button.addEventListener("click", () => { loadLobby(true) });
-    const button2 = document.createElement('button');
-    button2.innerHTML = "help";
-    button2.addEventListener("click", showHelp);
-    div.appendChild(button);
-    div.appendChild(button2);
-    main.appendChild(div);
-    if (lobby.length >= 2) {
-        if (checkLobbyReady()) {
-            const start = document.createElement('button');
-            start.value = "button";
-            start.innerHTML = "start";
-            start.addEventListener("click", () => { socket.emit('startGame', true); });
-            main.appendChild(start);
-        }
-    }
-}
-
-function checkLobbyReady() {
+function checkLobbyReady(players) {
     let x = true;
-    lobby.forEach((player) => {
-        if (!player) {
+    players.forEach((player) => {
+        if (!player.isReady) {
             x = false;
         }
     });
