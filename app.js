@@ -23,10 +23,7 @@ const PLAYER_LIST = [];
 
 //lobbies
 let LOBBIES = [];
-LOBBIES.push(Lobby.creteLobby(LOBBIES.length));
-
-
-//LOBBIES[1].AddPlayer(Player.Create(0, grid[0]))
+//LOBBIES.push(Lobby.creteLobby(LOBBIES.length));
 
 io.sockets.on('connection', function(socket) {
     socket.id = SOCKET_LIST.length;
@@ -46,7 +43,6 @@ io.sockets.on('connection', function(socket) {
         }
         delete SOCKET_LIST[socket.id];
         delete PLAYER_LIST[socket.id];
-        
     });
     socket.on('keyPress', function(data) {
         if(player.inGame) {
@@ -66,7 +62,7 @@ io.sockets.on('connection', function(socket) {
                 player.pressingDown = data.state;
                 player.currentCell = LOBBIES[player.lobby].maze[Maze.index(player.currentCell.i,player.currentCell.j+1)];
             }
-
+            
             if(player.currentCell.goal) {
                 console.log("winner");
                 winnerScoreScreen(player.lobby, player.id);
@@ -150,18 +146,15 @@ setInterval(function () {
         else if(player.inGame){
             socket.emit('newPositions', pack[player.lobby]);
         }
-        else if(player.lobby == null && timer >= 15){
+        else if(player.lobby == null && timer >= 10){
             socket.emit('lobbyList', LOBBIES);
-            //console.log(i, "not in lobby");
-        }else if(player.lobby != null && timer >= 15){
+        }else if(player.lobby != null && timer >= 10){
             socket.emit('inLobby', LOBBIES[player.lobby]);
-            //console.log(i, "in lobby");
         }
         
     }
-    if(timer > 15) {
+    if(timer > 10) {
         timer = 0;
-        //console.log("refress lobby");
     }
     timer++;
 
@@ -170,4 +163,4 @@ setInterval(function () {
             //LOBBIES.splice(c,1);
         }
     }*/
-},2000/20); //refress lobby every 2 sec
+},2000/20);

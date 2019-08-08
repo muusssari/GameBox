@@ -39,7 +39,6 @@ socket.on('inLobby', function(data) {
     CreateLobby(data);
 });
 
-
 //Send Button pressings to server
 document.onkeydown = function(event) {
     if (event.keyCode === 68) { //d
