@@ -2,6 +2,7 @@
 const CreateLobby = function(id) {
     let self = {
         id: id,
+        game: false,
         players: []
     }
     self.AddPlayer = function (player) {

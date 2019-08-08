@@ -11,8 +11,8 @@ const CreatePlayer = function(id,cell) {
         maxSpd:cell.w,
         currentCell:cell,
         isReady:false,
-        inLobby: false,
-        inGame: false,
+        inGame:false,
+        lobby:null
     }
     self.init = function (cell) {
         self.x = cell.w/3;

@@ -1,4 +1,5 @@
 const Player = require('./server/Player')
+const Lobby = require('./server/lobbies')
 const Maze = require('./server/maze')
 const express = require('express');
 const app = express();
@@ -16,10 +17,16 @@ serv.listen(2000);
 console.log("Server Started");
 
 let grid = Maze.setupMaze();
+//Players has same soket and player id
 let SOCKET_LIST = [];
 let PLAYER_LIST = [];
-let INLOBBY = [];
-let INGAME = [];
+
+//lobbies
+let LOBBIES = [];
+//LOBBIES.push(Lobby.creteLobby(LOBBIES.length));
+
+
+//LOBBIES[1].AddPlayer(Player.Create(0, grid[0]))
 
 io.sockets.on('connection', function(socket) {
     socket.id = SOCKET_LIST.length;
@@ -51,7 +58,7 @@ io.sockets.on('connection', function(socket) {
                 player.pressingDown = data.state;
                 player.currentCell = grid[Maze.index(player.currentCell.i,player.currentCell.j+1)];
             }
-    
+
             if(player.currentCell.goal) {
                 console.log("winner");
                 winnerScoreScreen(player.id);
@@ -80,6 +87,14 @@ io.sockets.on('connection', function(socket) {
     socket.on('addPlayer', function(data) {
         addPlayerToLobby(data);
     });
+    socket.on('CreateLobby', function() {
+        const len = LOBBIES.length;
+        LOBBIES.push(Lobby.creteLobby(len));
+        const player = PLAYER_LIST[socket.id];
+        player.lobby = len;
+        LOBBIES[len].AddPlayer(player);
+        socket.emit('inLobby', LOBBIES[len]);
+    })
     socket.emit('id', socket.id);
 });
 
@@ -125,7 +140,7 @@ function addPlayerToLobby(data) {
         }
 }
 
-setInterval(function () {
+/*setInterval(function () {
     let pack = [];
     for (const i in PLAYER_LIST) {
         let player = PLAYER_LIST[i];
@@ -140,4 +155,33 @@ setInterval(function () {
         let socket = SOCKET_LIST[i];
         socket.emit('newPositions', pack);
     }
-},1000/30);
+},1000/30);*/
+let timer = 0;
+setInterval(function () {
+    for (const i in PLAYER_LIST) {
+        const player = PLAYER_LIST[i];
+        const socket = SOCKET_LIST[i];
+        if(player.lobby == null && timer >= 25){
+            socket.emit('lobbyList', LOBBIES);
+            //console.log(i, "not in lobby");
+        }else if(player.lobby != null && timer >= 25){
+            socket.emit('inLobby', LOBBIES[player.lobby]);
+            //console.log(i, "in lobby");
+        }
+        
+        if(player.inGame){
+            socket.emit('game', LOBBIES[player.lobby]);
+            player.updatePosition();
+            pack.push({
+                x:player.x,
+                y:player.y,
+                id:player.id
+        });
+        }
+    }
+    if(timer > 25) {
+        timer = 0;
+        console.log("refress lobby");
+    }
+    timer++;
+},2000/25); //refress lobby every 2 sec

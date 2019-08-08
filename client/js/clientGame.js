@@ -35,8 +35,12 @@ socket.on('winner', function(data) {
     button.addEventListener("click", CreateMain);
     document.getElementById('main').appendChild(button);
 });
-
-
+socket.on('lobbyList', function(data) {
+    CreateMain(data);
+});
+socket.on('inLobby', function(data) {
+    CreateLobby(data);
+});
 
 
 //Send Button pressings to server
@@ -86,6 +90,9 @@ function setCanvasTouch(canvas) {
         }
     });
 }
+function createNewLobby() {
+    socket.emit('CreateLobby', true);
+}
 
 //Draw
 function startGame() {
@@ -122,21 +129,61 @@ function showHelp() {
     alert('Instruction\nOn desktop use w,a,s,d to move\nOn mobile wipe direction that you want to move');
 }
 //Lobby
-function CreateMain() {
+function CreateMain(data) {
     main.innerHTML = "";
     const div = document.createElement('div');
     div.setAttribute("id", "text");
-    const button = document.createElement('button');
-    button.innerHTML = "Join Game";
+    const ul = document.createElement('ul');
+    if(data) {
+        data.forEach(lobby => {
+            const li = document.createElement('li');
+            const text = document.createElement('p');
+            text.innerHTML = "Lobby Name: " + lobby.id + " Players: " + lobby.players.length + " / 10    ";
+            const button = document.createElement('button');
+            button.innerHTML = "Join Game";
+            button.addEventListener("click", () => { loadLobby(false) });
+            text.appendChild(button);
+            li.appendChild(text);
+            ul.appendChild(li);
+        });
+    }
+    div.appendChild(ul);
+    const button3 = document.createElement('button');
+    button3.innerHTML = "Start New Lobby";
     const button2 = document.createElement('button');
     button2.innerHTML = "help";
     button2.addEventListener("click", showHelp);
-    button.addEventListener("click", () => { loadLobby(false) });
-    div.appendChild(button);
-    div.appendChild(button2);
+    button3.addEventListener("click", createNewLobby);
+    main.appendChild(button3);
+    main.appendChild(button2);
     main.appendChild(div);
 }
-CreateMain();
+function CreateLobby(data) {
+    main.innerHTML = "";
+    const div = document.createElement('div');
+    div.setAttribute("id", "text");
+    const ul = document.createElement('ul');
+    if(data.players) {
+        data.players.forEach(player => {
+            const li = document.createElement('li');
+            const text = document.createElement('p');
+            text.innerHTML = "Player id " + player.id + "   ";
+            const button = document.createElement('button');
+            button.innerHTML = "vote kick";
+            button.addEventListener("click", () => { console.log("kick here") });
+            text.appendChild(button);
+            li.appendChild(text);
+            ul.appendChild(li);
+        });
+    }
+    div.appendChild(ul);
+    
+    const button2 = document.createElement('button');
+    button2.innerHTML = "help";
+    button2.addEventListener("click", showHelp);
+    main.appendChild(button2);
+    main.appendChild(div);
+}
 
 function loadLobby(set) {
     if (set) {
