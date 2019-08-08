@@ -36,8 +36,18 @@ io.sockets.on('connection', function(socket) {
     PLAYER_LIST[socket.id] = player;
 
     socket.on('disconnect', function() {
+        let player = PLAYER_LIST[socket.id]
+        if(player.lobby != null){
+            for(let i = 0; i < LOBBIES[player.lobby].players.length; i++) {
+                if(LOBBIES[player.lobby].players[i].id == socket.id){
+                    LOBBIES[player.lobby].players.splice(i,1);
+                }
+            }
+        }
+        
         delete SOCKET_LIST[socket.id];
         delete PLAYER_LIST[socket.id];
+        
     });
 
     socket.on('keyPress', function(data) {
