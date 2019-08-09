@@ -57,17 +57,17 @@ function setCanvasTouch(canvas) {
     let yStart;
     let x;
     let y;
-    canvas.addEventListener("touchmove", function(event) {
+    window.addEventListener("touchmove", function(event) {
         event.preventDefault();
         x = event.targetTouches[0].clientX;
         y = event.targetTouches[0].clientY;
-    });
-    canvas.addEventListener("touchstart", function(event) {
+    }, {passive: false});
+    window.addEventListener("touchstart", function(event) {
         event.preventDefault();
         xStart = event.targetTouches[0].clientX;
         yStart = event.targetTouches[0].clientY;
-    });
-    canvas.addEventListener("touchend", function() {
+    }, {passive: false});
+    window.addEventListener("touchend", function() {
         event.preventDefault();
         const xNum = x - xStart;
         const yNum = y - yStart;
@@ -84,7 +84,7 @@ function setCanvasTouch(canvas) {
                 socket.emit('keyPress', { inputId: 'left', state: true });
             }
         }
-    });
+    }, {passive: false});
 }
 function createNewLobby() {
     socket.emit('CreateLobby', true);
