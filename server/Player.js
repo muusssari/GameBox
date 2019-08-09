@@ -1,9 +1,10 @@
 
-const CreatePlayer = function(id,cell) {
+const CreatePlayer = function(id,cell,name) {
     let self = {
         x:0,
         y:0,
         id:id,
+        name:(name) ? name : "quest "+id,
         pressingRight:false,
         pressingLeft:false,
         pressingUp:false,

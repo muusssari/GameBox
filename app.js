@@ -29,7 +29,7 @@ io.sockets.on('connection', function(socket) {
     socket.id = SOCKET_LIST.length;
     SOCKET_LIST[socket.id] = socket;
     
-    let player = Player.Create(socket.id, grid[0]);
+    let player = Player.Create(socket.id, grid[0], null);
     PLAYER_LIST[socket.id] = player;
 
     socket.on('disconnect', function() {
@@ -43,6 +43,9 @@ io.sockets.on('connection', function(socket) {
         }
         delete SOCKET_LIST[socket.id];
         delete PLAYER_LIST[socket.id];
+    });
+    socket.on('changeName', function(data) {
+        PLAYER_LIST[socket.id].name = data;
     });
     socket.on('keyPress', function(data) {
         if(player.inGame) {

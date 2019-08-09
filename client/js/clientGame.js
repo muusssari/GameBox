@@ -140,7 +140,7 @@ function CreateMain(data) {
         data.forEach(lobby => {
             const li = document.createElement('li');
             const text = document.createElement('p');
-            text.innerHTML = "Lobby Name: " + lobby.id + " Players: " + lobby.players.length + " / 10    ";
+            text.innerHTML = "Lobby Name: Maze Game - " + lobby.id + " Players: " + lobby.players.length + " / 10    ";
             const button = document.createElement('button');
             button.innerHTML = "Join Game";
             button.addEventListener("click", () =>{ joinlobby(lobby.id) } );
@@ -156,8 +156,17 @@ function CreateMain(data) {
     button2.innerHTML = "help";
     button2.addEventListener("click", showHelp);
     button3.addEventListener("click", createNewLobby);
+    const remane = document.createElement('button');
+    remane.innerHTML = "rename";
+    remane.addEventListener("click", () => {
+        const name = prompt("Enter your nikname");
+        if(name != null && !name.includes(" ")){
+            socket.emit('changeName', name);
+        }
+    });
     main.appendChild(button3);
     main.appendChild(button2);
+    main.appendChild(remane);
     main.appendChild(div);
 }
 function CreateLobby(data) {
@@ -169,7 +178,7 @@ function CreateLobby(data) {
         data.players.forEach(player => {
             const li = document.createElement('li');
             const text = document.createElement('p');
-            text.innerHTML = "Player id " + player.id + "   ";
+            text.innerHTML = "Player name: " + player.name + "   ";
             const button = document.createElement('button');
             const buttonReady = document.createElement('button');
             const readyText = document.createElement('spam');
@@ -213,7 +222,16 @@ function CreateLobby(data) {
     const button2 = document.createElement('button');
     button2.innerHTML = "help";
     button2.addEventListener("click", showHelp);
+    const remane = document.createElement('button');
+    remane.innerHTML = "rename";
+    remane.addEventListener("click", () => {
+        const name = prompt("Enter your nikname");
+        if(name != null && !name.includes(" ")){
+            socket.emit('changeName', name);
+        }
+    });
     main.appendChild(button2);
+    main.appendChild(remane);
     main.appendChild(div);
 }
 

@@ -9,7 +9,6 @@ then go localhost:2000
 coming/known issues
 - timer
 - logging system?
-- create own name
 - Add events (random jumps, etc)
 - add better tutorial
 - add chat to lobby
