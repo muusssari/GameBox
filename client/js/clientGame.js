@@ -8,7 +8,6 @@ const header = document.getElementById("header");
 let socket = io();
 let mazeGrid = [];
 let Players = [];
-let lobby = [];
 let myId;
 
 //Get data from server
