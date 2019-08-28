@@ -9,6 +9,7 @@ const socket = io()
 let mazeGrid = []
 let Players = []
 let myId
+let inGame = false;
 
 // Get data from server
 socket.on('playersLobby', function (data) {
@@ -22,9 +23,11 @@ socket.on('newPositions', function (data) {
 })
 socket.on('startGame', function (data) {
   mazeGrid = data
+  inGame = true;
   startGame()
 })
 socket.on('winner', function (data) {
+    inGame = false;
   customAlert.render('winner is ' + data, myId)
   const button = document.createElement('button')
   button.innerHTML = 'Back to menu'
@@ -57,17 +60,23 @@ function setCanvasTouch (canvas) {
   let x
   let y
   window.addEventListener('touchmove', function (event) {
-    event.preventDefault()
+    if(inGame) {
+        event.preventDefault()
+    }
     x = event.targetTouches[0].clientX
     y = event.targetTouches[0].clientY
   }, { passive: false })
   window.addEventListener('touchstart', function (event) {
-    event.preventDefault()
+    if(inGame) {
+        event.preventDefault()
+    }
     xStart = event.targetTouches[0].clientX
     yStart = event.targetTouches[0].clientY
   }, { passive: false })
   window.addEventListener('touchend', function () {
-    event.preventDefault()
+    if(inGame) {
+        event.preventDefault()
+    }
     const xNum = x - xStart
     const yNum = y - yStart
     if (Math.abs(xNum) <= Math.abs(yNum)) {
