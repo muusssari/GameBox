@@ -23,6 +23,7 @@ const PLAYER_LIST = []
 // lobbies
 const LOBBIES = []
 // LOBBIES.push(Lobby.creteLobby(LOBBIES.length));
+console.log("adkladjnkafsijonafeoafpåkfawpåa");
 
 io.sockets.on('connection', function (socket) {
   socket.id = SOCKET_LIST.length
